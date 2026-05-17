@@ -49,6 +49,16 @@ export function rerender() {
     console.error(e);
     content.appendChild(el('div', { class: 'alert alert-warning' }, 'Erreur d\'affichage : ' + e.message));
   }
+  content.appendChild(
+    el('div', { class: 'app-footer' }, [
+      'Propulsé par ',
+      el(
+        'a',
+        { href: 'https://lsmdx.com', target: '_blank', rel: 'noopener noreferrer' },
+        'LSMDX'
+      ),
+    ])
+  );
   shell.appendChild(content);
   shell.appendChild(bottomNav(route.tab));
   root.appendChild(shell);
