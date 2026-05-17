@@ -181,6 +181,11 @@ export function removeReservation(id) {
   state.session.reservations = state.session.reservations.filter((r) => r.id !== id);
   saveSession();
 }
+export function updateReservation(id, patch) {
+  const r = state.session.reservations.find((x) => x.id === id);
+  if (r) Object.assign(r, patch);
+  saveSession();
+}
 
 // ---------- Cochages ----------
 export function isCoche(passId, assietteId) {
