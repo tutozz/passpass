@@ -30,13 +30,10 @@ npm run preview
 Le déploiement est automatique via GitHub Actions (`.github/workflows/deploy.yml`)
 à chaque push sur `main`.
 
-Pour activer la première fois :
+Configuration Pages : **Settings → Pages → Source** doit être réglé sur
+**"GitHub Actions"** (et pas "Deploy from a branch").
 
-1. Aller sur le dépôt → **Settings** → **Pages**
-2. Sous **Source**, choisir **GitHub Actions**
-3. Pousser sur `main` ou relancer le workflow manuellement
-
-URL publique : `https://<utilisateur>.github.io/passpass/`
+URL publique : <https://tutozz.github.io/passpass/>
 
 ## Données
 
