@@ -1,6 +1,7 @@
 import { el } from '../utils/dom.js';
 import { getState } from '../store.js';
 import { computeRecharges } from '../utils/calc.js';
+import { iconCheck, iconPlate } from '../utils/icons.js';
 
 export function renderRecharge() {
   const state = getState();
@@ -32,7 +33,7 @@ export function renderRecharge() {
   if (recharges.length === 0) {
     wrap.appendChild(
       el('div', { class: 'recharge-ok' }, [
-        el('div', { class: 'recharge-ok-icon' }, '✓'),
+        el('div', { class: 'recharge-ok-icon' }, iconCheck(40)),
         el('div', { class: 'recharge-ok-title' }, 'Stock suffisant'),
         el(
           'div',
@@ -85,7 +86,7 @@ export function renderRecharge() {
             ? { backgroundImage: `url(${r.assiette.photo})` }
             : {},
         },
-        r.assiette.photo ? null : '🍽'
+        r.assiette.photo ? null : iconPlate(22)
       ),
       el('div', { class: 'recharge-row-main' }, [
         el('div', { class: 'recharge-row-name' }, r.assiette.nom),

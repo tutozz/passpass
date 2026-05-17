@@ -1,6 +1,7 @@
 import { el } from '../utils/dom.js';
 import { getState, isCoche } from '../store.js';
 import { computeQuantities } from '../utils/calc.js';
+import { iconCheck, iconWarning } from '../utils/icons.js';
 
 export function renderPasses() {
   const state = getState();
@@ -36,11 +37,10 @@ export function renderPasses() {
   const hasUnknown = state.session.reservations.some((r) => !r.menu_id);
   if (hasUnknown && !def) {
     wrap.appendChild(
-      el(
-        'div',
-        { class: 'alert alert-warning' },
-        '⚠ Aucun menu par défaut défini : les réservations « inconnu » sont ignorées dans le calcul.'
-      )
+      el('div', { class: 'alert alert-warning' }, [
+        iconWarning(18),
+        ' Aucun menu par défaut défini : les réservations « inconnu » sont ignorées dans le calcul.',
+      ])
     );
   }
 
@@ -60,7 +60,7 @@ export function renderPasses() {
       class: 'pass-tile' + (p.photo ? '' : ' pass-tile-no-photo'),
       style: p.photo ? { backgroundImage: `url(${p.photo})` } : {},
     });
-    if (done) tile.appendChild(el('div', { class: 'pass-tile-check' }, '✓'));
+    if (done) tile.appendChild(el('div', { class: 'pass-tile-check' }, iconCheck(18)));
     const overlay = el('div', { class: 'pass-tile-overlay' }, [
       el('div', { class: 'pass-tile-name' }, p.nom),
       lines.length > 0

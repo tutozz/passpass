@@ -998,4 +998,61 @@ a.hero-link::after {
   margin-top: 16px;
   border: 1px solid var(--success);
   font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Chevron used in list items */
+.chev {
+  color: var(--text-faint);
+  font-size: 20px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* Icon + text alert */
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.alert svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Chip with icon */
+.chip {
+  gap: 6px;
+}
+.chip svg {
+  flex-shrink: 0;
+}
+
+/* Plate thumb with SVG inside */
+.plate-thumb svg {
+  display: block;
+  opacity: 0.8;
+}
+
+/* Recharge OK icon centering for SVG */
+.recharge-ok-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.recharge-ok-icon svg {
+  display: block;
+}
+
+/* Pass tile check icon */
+.pass-tile-check svg {
+  display: block;
+}
+
+/* Checkbox SVG centering */
+.checkbox svg {
+  display: block;
 }

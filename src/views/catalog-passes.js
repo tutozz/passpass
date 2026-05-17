@@ -3,6 +3,7 @@ import { getState, updatePass } from '../store.js';
 import { openModal } from '../utils/modal.js';
 import { fileToCompressedDataURL } from '../utils/photo.js';
 import { rerender } from '../main.js';
+import { iconCamera } from '../utils/icons.js';
 
 export function renderCatalogPasses() {
   const state = getState();
@@ -31,7 +32,7 @@ export function renderCatalogPasses() {
               class: 'plate-thumb',
               style: p.photo ? { backgroundImage: `url(${p.photo})` } : {},
             },
-            p.photo ? null : '📷'
+            p.photo ? null : iconCamera(22)
           ),
           el('div', { class: 'list-item-main' }, [
             el('div', { class: 'list-item-title' }, p.nom),
