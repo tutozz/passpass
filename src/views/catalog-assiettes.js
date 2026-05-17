@@ -57,7 +57,8 @@ export function renderCatalogAssiettes() {
             el(
               'div',
               { class: 'list-item-sub' },
-              `Marge +${a.marge_pourcentage}%`
+              `Marge +${a.marge_pourcentage}%` +
+                (a.stock_total != null ? ` · stock ${a.stock_total}` : '')
             ),
           ]),
           el('div', { style: { color: 'var(--text-faint)', fontSize: '20px' } }, '›'),
@@ -78,6 +79,7 @@ function editAssiette(id) {
   let nom = existing?.nom || '';
   let marge = existing?.marge_pourcentage ?? 10;
   let photo = existing?.photo || null;
+  let stock = existing?.stock_total ?? '';
 
   const body = el('div');
 
@@ -147,6 +149,34 @@ function editAssiette(id) {
     el('div', { class: 'field' }, [
       el('label', { class: 'field-label' }, 'Marge de sécurité (%)'),
       el('div', {}, [margeStepper, presets]),
+    ])
+  );
+
+  // Stock total
+  const stockInput = el('input', {
+    type: 'number',
+    min: '0',
+    value: stock === '' ? '' : String(stock),
+    placeholder: 'illimité',
+    inputmode: 'numeric',
+  });
+  stockInput.addEventListener('input', () => {
+    const raw = stockInput.value.trim();
+    if (raw === '') stock = '';
+    else {
+      const v = parseInt(raw, 10);
+      stock = isNaN(v) || v < 0 ? '' : v;
+    }
+  });
+  body.appendChild(
+    el('div', { class: 'field' }, [
+      el('label', { class: 'field-label' }, 'Stock total (laisser vide si illimité)'),
+      stockInput,
+      el(
+        'div',
+        { style: { fontSize: '12px', color: 'var(--text-faint)', marginTop: '6px' } },
+        'Nombre d\'exemplaires disponibles à la maison. Sert à calculer les recharges pendant le service.'
+      ),
     ])
   );
 
@@ -221,13 +251,18 @@ function editAssiette(id) {
               alert('Donne un nom à l\'assiette.');
               return;
             }
-            if (isNew) addAssiette(nom.trim(), marge, photo);
-            else
+            const stockVal = stock === '' ? null : stock;
+            if (isNew) {
+              const created = addAssiette(nom.trim(), marge, photo);
+              updateAssiette(created.id, { stock_total: stockVal });
+            } else {
               updateAssiette(id, {
                 nom: nom.trim(),
                 marge_pourcentage: marge,
                 photo,
+                stock_total: stockVal,
               });
+            }
             modal.close();
             rerender();
           },

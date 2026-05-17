@@ -47,3 +47,31 @@ export function computeQuantities(state) {
   }
   return byPass;
 }
+
+export function computeRecharges(state) {
+  const byPass = computeQuantities(state);
+  const totalByAssiette = new Map();
+  for (const lines of Object.values(byPass)) {
+    for (const l of lines) {
+      const prev = totalByAssiette.get(l.assiette.id) || {
+        assiette: l.assiette,
+        besoin: 0,
+      };
+      prev.besoin += l.final;
+      totalByAssiette.set(l.assiette.id, prev);
+    }
+  }
+  const recharges = [];
+  for (const { assiette, besoin } of totalByAssiette.values()) {
+    const stock = assiette.stock_total;
+    if (stock == null) continue;
+    const manque = besoin - stock;
+    if (manque > 0) {
+      recharges.push({ assiette, besoin, stock, manque });
+    }
+  }
+  recharges.sort(
+    (a, b) => b.manque - a.manque || a.assiette.nom.localeCompare(b.assiette.nom)
+  );
+  return recharges;
+}
