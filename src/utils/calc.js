@@ -14,8 +14,11 @@ export function computeQuantities(state) {
       if (!plat) continue;
       for (const c of plat.compositions) {
         if (!c.assiette_id || !c.pass_id) continue;
+        const cpu = Math.max(1, c.couverts_par_unite || 1);
+        const units = Math.ceil(r.couverts / cpu) * c.quantite;
+        if (units <= 0) continue;
         const key = `${c.pass_id}|${c.assiette_id}`;
-        brut[key] = (brut[key] || 0) + r.couverts * c.quantite;
+        brut[key] = (brut[key] || 0) + units;
       }
     }
   }

@@ -3,10 +3,12 @@ import {
   getState,
   addReservation,
   removeReservation,
+  updateReservation,
   defaultMenu,
 } from '../store.js';
 import { haptic } from '../utils/haptic.js';
 import { rerender } from '../main.js';
+import { openModal } from '../utils/modal.js';
 
 export function renderReservations() {
   const state = getState();
@@ -15,7 +17,6 @@ export function renderReservations() {
   const menus = state.catalog.menus;
   const def = defaultMenu();
 
-  // State du formulaire (local)
   let formCouverts = 2;
   const last = state.prefs.last_menu_id;
   let formMenu =
@@ -27,19 +28,36 @@ export function renderReservations() {
           ? 'unknown'
           : menus[0]?.id || null;
 
-  // Header
-  wrap.appendChild(
+  // Header — titre + bouton voir passes
+  const totalCv = state.session.reservations.reduce((a, r) => a + r.couverts, 0);
+  const totalRes = state.session.reservations.length;
+
+  const headRow = el('div', { class: 'page-head-row' }, [
     el('div', { class: 'page-head' }, [
       el('h1', { class: 'page-title' }, 'Service en cours'),
       el('p', { class: 'page-sub' }, formatStart(state.session.started_at)),
-    ])
-  );
+    ]),
+    totalRes > 0
+      ? el(
+          'a',
+          {
+            href: '#/passes',
+            class: 'btn btn-primary head-cta',
+          },
+          ['Voir passes →']
+        )
+      : null,
+  ]);
+  wrap.appendChild(headRow);
 
-  // Hero stats
-  const totalCv = state.session.reservations.reduce((a, r) => a + r.couverts, 0);
-  const totalRes = state.session.reservations.length;
-  wrap.appendChild(
-    el('div', { class: 'hero' }, [
+  // Hero (clickable when resas)
+  const hero = el(
+    totalRes > 0 ? 'a' : 'div',
+    {
+      class: 'hero' + (totalRes > 0 ? ' hero-link' : ''),
+      href: totalRes > 0 ? '#/passes' : null,
+    },
+    [
       el('div', {}, [
         el('div', { class: 'hero-label' }, 'Total couverts'),
         el(
@@ -49,10 +67,11 @@ export function renderReservations() {
         ),
       ]),
       el('div', { class: 'hero-num' }, String(totalCv)),
-    ])
+    ]
   );
+  wrap.appendChild(hero);
 
-  // Formulaire
+  // Formulaire d'ajout
   const stepperInput = el('input', {
     type: 'number',
     min: '1',
@@ -131,7 +150,7 @@ export function renderReservations() {
   const addBtn = el(
     'button',
     { class: 'btn btn-primary btn-block btn-large' },
-    'Ajouter'
+    '+ Ajouter cette réservation'
   );
   addBtn.addEventListener('click', () => {
     if (menus.length === 0) {
@@ -189,45 +208,176 @@ export function renderReservations() {
         : def
           ? `Inconnu → ${def.nom}`
           : 'Inconnu (aucun défaut)';
-      const row = el('div', { class: 'resa-row' }, [
-        el('div', { class: 'resa-couverts' }, `${r.couverts} cv`),
-        el(
-          'div',
-          { class: 'resa-menu' + (isUnknown ? ' unknown' : '') },
-          displayMenu
-        ),
-        el(
-          'button',
-          {
-            class: 'btn btn-icon btn-ghost btn-danger',
-            'aria-label': 'Supprimer',
-            onClick: () => {
-              removeReservation(r.id);
-              rerender();
+      const row = el(
+        'div',
+        { class: 'resa-row', onClick: () => editResa(r.id) },
+        [
+          el('div', { class: 'resa-couverts' }, `${r.couverts} cv`),
+          el(
+            'div',
+            { class: 'resa-menu' + (isUnknown ? ' unknown' : '') },
+            displayMenu
+          ),
+          el(
+            'button',
+            {
+              class: 'btn btn-icon btn-ghost btn-danger',
+              'aria-label': 'Supprimer',
+              onClick: (e) => {
+                e.stopPropagation();
+                removeReservation(r.id);
+                rerender();
+              },
             },
-          },
-          '×'
-        ),
-      ]);
+            '×'
+          ),
+        ]
+      );
       list.appendChild(row);
     }
     wrap.appendChild(list);
   }
 
-  // CTA flottant
-  if (state.session.reservations.length > 0) {
-    wrap.appendChild(
-      el('div', { class: 'sticky-cta' }, [
-        el(
-          'a',
-          { href: '#/passes', class: 'btn btn-primary btn-block btn-large' },
-          'Voir les passes →'
-        ),
+  return wrap;
+}
+
+function editResa(id) {
+  const state = getState();
+  const r = state.session.reservations.find((x) => x.id === id);
+  if (!r) return;
+  const menus = state.catalog.menus;
+  const def = defaultMenu();
+
+  let couverts = r.couverts;
+  let menuId = r.menu_id === null ? 'unknown' : r.menu_id;
+
+  const body = el('div');
+
+  const cInput = el('input', {
+    type: 'number',
+    min: '1',
+    value: String(couverts),
+    inputmode: 'numeric',
+  });
+  cInput.addEventListener('input', () => {
+    const v = parseInt(cInput.value, 10);
+    couverts = isNaN(v) || v < 1 ? 1 : v;
+  });
+  const stepper = el('div', { class: 'stepper' }, [
+    el(
+      'button',
+      {
+        type: 'button',
+        onClick: () => {
+          couverts = Math.max(1, couverts - 1);
+          cInput.value = String(couverts);
+        },
+      },
+      '−'
+    ),
+    cInput,
+    el(
+      'button',
+      {
+        type: 'button',
+        onClick: () => {
+          couverts += 1;
+          cInput.value = String(couverts);
+        },
+      },
+      '+'
+    ),
+  ]);
+  body.appendChild(
+    el('div', { class: 'field' }, [
+      el('label', { class: 'field-label' }, 'Couverts'),
+      stepper,
+    ])
+  );
+
+  if (menus.length > 0) {
+    const chipsWrap = el('div', { class: 'chips' });
+    const renderChips = () => {
+      chipsWrap.innerHTML = '';
+      if (def) {
+        chipsWrap.appendChild(
+          el(
+            'div',
+            {
+              class: 'chip' + (menuId === 'unknown' ? ' chip-active' : ''),
+              onClick: () => {
+                menuId = 'unknown';
+                renderChips();
+              },
+            },
+            ['Inconnu', el('span', { class: 'chip-sub' }, `→ ${def.nom}`)]
+          )
+        );
+      }
+      for (const m of menus) {
+        chipsWrap.appendChild(
+          el(
+            'div',
+            {
+              class: 'chip' + (menuId === m.id ? ' chip-active' : ''),
+              onClick: () => {
+                menuId = m.id;
+                renderChips();
+              },
+            },
+            [
+              m.nom,
+              m.est_defaut
+                ? el('span', { class: 'chip-sub' }, 'défaut')
+                : null,
+            ]
+          )
+        );
+      }
+    };
+    renderChips();
+    body.appendChild(
+      el('div', { class: 'field' }, [
+        el('label', { class: 'field-label' }, 'Menu'),
+        chipsWrap,
       ])
     );
   }
 
-  return wrap;
+  const actions = el('div', { class: 'modal-actions' }, [
+    el(
+      'button',
+      {
+        class: 'btn btn-danger',
+        onClick: () => {
+          if (!confirm('Supprimer cette réservation ?')) return;
+          removeReservation(id);
+          modal.close();
+          rerender();
+        },
+      },
+      'Supprimer'
+    ),
+    el('button', { class: 'btn', onClick: () => modal.close() }, 'Annuler'),
+    el(
+      'button',
+      {
+        class: 'btn btn-primary',
+        onClick: () => {
+          updateReservation(id, {
+            couverts,
+            menu_id: menuId === 'unknown' ? null : menuId,
+          });
+          modal.close();
+          rerender();
+        },
+      },
+      'Enregistrer'
+    ),
+  ]);
+  body.appendChild(actions);
+
+  const modal = openModal({ title: 'Modifier la réservation', body });
 }
 
 function formatStart(ts) {
