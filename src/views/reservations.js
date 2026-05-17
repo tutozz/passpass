@@ -212,7 +212,7 @@ export function renderReservations() {
         'div',
         { class: 'resa-row', onClick: () => editResa(r.id) },
         [
-          el('div', { class: 'resa-couverts' }, `${r.couverts} cv`),
+          el('div', { class: 'resa-couverts' }, `${r.couverts} PACS`),
           el(
             'div',
             { class: 'resa-menu' + (isUnknown ? ' unknown' : '') },
