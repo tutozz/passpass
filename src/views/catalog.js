@@ -1,5 +1,11 @@
 import { el } from '../utils/dom.js';
 import { getState } from '../store.js';
+import {
+  iconTarget,
+  iconPlate,
+  iconUtensils,
+  iconClipboard,
+} from '../utils/icons.js';
 
 export function renderCatalog() {
   const state = getState();
@@ -17,19 +23,19 @@ export function renderCatalog() {
       href: '#/catalog/passes',
       title: 'Pass',
       sub: `${state.catalog.passes.length} pass · positions des assiettes`,
-      icon: '🎯',
+      icon: iconTarget,
     },
     {
       href: '#/catalog/assiettes',
       title: 'Assiettes',
       sub: `${state.catalog.assiettes.length} assiette${state.catalog.assiettes.length > 1 ? 's' : ''} · marge incluse`,
-      icon: '🍽',
+      icon: iconPlate,
     },
     {
       href: '#/catalog/plats',
       title: 'Plats',
       sub: `${state.catalog.plats.length} plat${state.catalog.plats.length > 1 ? 's' : ''} · composition`,
-      icon: '🍴',
+      icon: iconUtensils,
     },
     {
       href: '#/catalog/menus',
@@ -40,7 +46,7 @@ export function renderCatalog() {
           : hasDefault
             ? ' · défaut OK'
             : ' · pas de défaut'),
-      icon: '📋',
+      icon: iconClipboard,
     },
   ];
 
@@ -51,16 +57,12 @@ export function renderCatalog() {
         'a',
         { href: c.href, class: 'list-item', style: { textDecoration: 'none', color: 'inherit' } },
         [
-          el(
-            'div',
-            { class: 'plate-thumb', style: { fontSize: '22px' } },
-            c.icon
-          ),
+          el('div', { class: 'plate-thumb' }, c.icon(24)),
           el('div', { class: 'list-item-main' }, [
             el('div', { class: 'list-item-title' }, c.title),
             el('div', { class: 'list-item-sub' }, c.sub),
           ]),
-          el('div', { style: { color: 'var(--text-faint)', fontSize: '20px' } }, '›'),
+          el('div', { class: 'chev' }, '›'),
         ]
       )
     );

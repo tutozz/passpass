@@ -8,6 +8,7 @@ import {
 } from '../store.js';
 import { openModal } from '../utils/modal.js';
 import { rerender } from '../main.js';
+import { iconCheck } from '../utils/icons.js';
 
 export function renderCatalogMenus() {
   const state = getState();
@@ -84,17 +85,24 @@ function editMenu(id) {
     ])
   );
 
+  const renderToggleContent = () => {
+    toggle.innerHTML = '';
+    if (isDefault) {
+      toggle.appendChild(iconCheck(16));
+      toggle.appendChild(document.createTextNode(' Menu par défaut'));
+    } else {
+      toggle.appendChild(document.createTextNode('Définir par défaut'));
+    }
+  };
   const toggle = el(
     'div',
-    { class: 'chip' + (isDefault ? ' chip-active' : '') },
-    isDefault ? '✓ Menu par défaut' : 'Définir par défaut'
+    { class: 'chip' + (isDefault ? ' chip-active' : '') }
   );
+  renderToggleContent();
   toggle.addEventListener('click', () => {
     isDefault = !isDefault;
     toggle.className = 'chip' + (isDefault ? ' chip-active' : '');
-    toggle.textContent = isDefault
-      ? '✓ Menu par défaut'
-      : 'Définir par défaut';
+    renderToggleContent();
   });
   body.appendChild(
     el('div', { class: 'field' }, [

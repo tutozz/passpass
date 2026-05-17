@@ -8,6 +8,7 @@ import {
 import { openModal } from '../utils/modal.js';
 import { fileToCompressedDataURL } from '../utils/photo.js';
 import { rerender } from '../main.js';
+import { iconPlate } from '../utils/icons.js';
 
 export function renderCatalogAssiettes() {
   const state = getState();
@@ -50,7 +51,7 @@ export function renderCatalogAssiettes() {
               class: 'plate-thumb',
               style: a.photo ? { backgroundImage: `url(${a.photo})` } : {},
             },
-            a.photo ? null : '🍽'
+            a.photo ? null : iconPlate(22)
           ),
           el('div', { class: 'list-item-main' }, [
             el('div', { class: 'list-item-title' }, a.nom),

@@ -3,6 +3,7 @@ import { getState, isCoche, toggleCochage } from '../store.js';
 import { computeQuantities } from '../utils/calc.js';
 import { haptic, hapticStrong } from '../utils/haptic.js';
 import { rerender } from '../main.js';
+import { iconCheck, iconPlate } from '../utils/icons.js';
 
 export function renderPassDetail(passId) {
   const state = getState();
@@ -92,7 +93,7 @@ export function renderPassDetail(passId) {
       el(
         'div',
         { class: 'checkbox' + (checked ? ' checked' : '') },
-        checked ? '✓' : ''
+        checked ? iconCheck(18) : null
       )
     );
     row.appendChild(
@@ -104,7 +105,7 @@ export function renderPassDetail(passId) {
             ? { backgroundImage: `url(${l.assiette.photo})` }
             : {},
         },
-        l.assiette.photo ? null : '🍽'
+        l.assiette.photo ? null : iconPlate(22)
       )
     );
     row.appendChild(
@@ -123,7 +124,9 @@ export function renderPassDetail(passId) {
   wrap.appendChild(list);
 
   if (checkedCount === total) {
-    wrap.appendChild(el('div', { class: 'pass-done' }, '✓ Pass terminée'));
+    wrap.appendChild(
+      el('div', { class: 'pass-done' }, [iconCheck(20), 'Pass terminée'])
+    );
     if (wasJustCompleted) {
       hapticStrong();
       window.__passpass_last_done = passId;
